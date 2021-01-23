@@ -1,4 +1,7 @@
-# VCF\_to\_annDB
+# VCF\_to\_annDB  
+
+Create a database of allele frequencies for ANNOVAR using a group of local VCFs  
+
 Usage:
 1) Copy all relevant vcf files to the ./data directory  
 ...ex. recursively:  
