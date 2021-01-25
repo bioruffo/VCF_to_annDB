@@ -9,6 +9,7 @@ Created on Sat Jan 23 11:36:43 2021
 import os, sys
 
 def make_db(avinput, dbname):
+    maxexamples = 5 # number of example samples for alt alleles
     sampleindex = None
     numsamples = None
     if not dbname.endswith(".txt"):
@@ -17,8 +18,15 @@ def make_db(avinput, dbname):
     # remove "hg19_" and ".txt"
     dbcore = name[5:-4]
     with open(dbname, 'w') as outfile:
-        outfile.write("#Chr\tStart\tEnd\tRef\tAlt\t"+dbcore+"_freq\t"+dbcore+"_count\n")
+        outfile.write("#Chr\tStart\tEnd\tRef\tAlt\t"+dbcore+"_freq\t"+dbcore+"_count\tExamples\n")
         for i, line in enumerate(open(avinput, "r")):
+            if line.startswith("##"):
+                continue
+            elif line.startswith("#CHR"):
+                header = line.strip().split("\t")
+                samplenames = header[header.index("FORMAT")+1:]
+                print(len(samplenames), 'samples:', ', '.join(samplenames))
+                continue
             data = line.strip().split('\t')
             # chr, start, end, ref, alt
             newline = data[:5]
@@ -35,8 +43,11 @@ def make_db(avinput, dbname):
             # get the total number of samples
             if numsamples is None:
                 numsamples = len(data)-sampleindex
+                assert numsamples == len(samplenames)
             alt = 0
-            for sample in data[sampleindex:]:
+            altexamples = []
+            for n, sample in enumerate(data[sampleindex:]):
+                has_alt = False
                 for count in [sample[0], sample[2]]:
                     # multiallelic VCFs are not good for us.
                     if count not in ['0', '1', '.']:
@@ -45,11 +56,16 @@ def make_db(avinput, dbname):
                             print("Are you using a multiallelic VCF? Please split multiallelic lines before using this script.")
                         print("Aborting script execution.")
                         sys.exit()
-                    alt += {'0':0, '.':0, '1':1}[count]
+                    addalt = {'0':0, '.':0, '1':1}[count]
+                if addalt > 0 and len(altexamples) < maxexamples:
+                    altexamples.append(samplenames[n])
+                alt += addalt
             # alt fraction
             newline.append('{:.3f}'.format(alt/(2*numsamples)))
             # "alt alleles / total alleles"
             newline.append('{}/{}'.format(alt, 2*numsamples))
+            # Example data with the alleles
+            newline.append(','.join(altexamples))
             newline = '\t'.join(newline) + '\n'
             outfile.write(newline)
             if (i+1) % 50000 == 0:

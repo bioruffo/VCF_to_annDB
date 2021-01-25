@@ -41,7 +41,7 @@ rm ${OUTDIR}/merged.vcf
 
 # convert to ANNOVAR format, keeping genotype data (format vcf4old)
 echo "Converting to ANNOVAR format..."
-convert2annovar.pl -format vcf4old ${OUTDIR}/merged_split.vcf -outfile ${OUTDIR}/output.avinput -includeinfo
+convert2annovar.pl -format vcf4old ${OUTDIR}/merged_split.vcf -outfile ${OUTDIR}/output.avinput -includeinfo -comment
 #rm ${OUTDIR}/merged_split.vcf
 
 echo "Done!"
