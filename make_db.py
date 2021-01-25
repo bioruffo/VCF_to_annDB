@@ -47,7 +47,7 @@ def make_db(avinput, dbname):
             alt = 0
             altexamples = []
             for n, sample in enumerate(data[sampleindex:]):
-                has_alt = False
+                addalt = 0
                 for count in [sample[0], sample[2]]:
                     # multiallelic VCFs are not good for us.
                     if count not in ['0', '1', '.']:
@@ -56,9 +56,9 @@ def make_db(avinput, dbname):
                             print("Are you using a multiallelic VCF? Please split multiallelic lines before using this script.")
                         print("Aborting script execution.")
                         sys.exit()
-                    addalt = {'0':0, '.':0, '1':1}[count]
+                    addalt += {'0':0, '.':0, '1':1}[count]
                 if addalt > 0 and len(altexamples) < maxexamples:
-                    altexamples.append(samplenames[n])
+                    altexamples.append('{}({})'.format(samplenames[n], sample[:3]))
                 alt += addalt
             # alt fraction
             newline.append('{:.3f}'.format(alt/(2*numsamples)))
