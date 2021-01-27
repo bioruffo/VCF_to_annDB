@@ -2,7 +2,7 @@
 
 Create a database of allele frequencies for ANNOVAR using a group of local VCFs  
 
-### Required software:  
+## Required software:  
 #### bcftools and htslib  
 http://www.htslib.org/download/  
 #### vcftools  
